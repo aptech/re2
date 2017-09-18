@@ -16,6 +16,7 @@ option(USEPCRE "use PCRE in tests and benchmarks" OFF)
 option(RE2_BUILD_TESTING "enable testing for RE2" ON)
 
 set(EXTRA_TARGET_LINK_LIBRARIES)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   if(MSVC_VERSION LESS 1800)
@@ -49,8 +50,6 @@ if(USEPCRE)
   list(APPEND EXTRA_TARGET_LINK_LIBRARIES pcre)
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
 set(RE2_SOURCES
     re2/bitstate.cc
     re2/compile.cc
@@ -77,6 +76,7 @@ set(RE2_SOURCES
     )
 
 add_library(re2 ${RE2_SOURCES})
+target_include_directories(re2 PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 if(RE2_BUILD_TESTING)
   set(TESTING_SOURCES
@@ -140,4 +140,5 @@ set(RE2_HEADERS
     )
 
 install(FILES ${RE2_HEADERS} DESTINATION include/re2)
-install(TARGETS re2 ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin)
+install(TARGETS re2 EXPORT RE2Config ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin)
+install(EXPORT RE2Config DESTINATION cmake)
